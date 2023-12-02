@@ -10,10 +10,6 @@
 
             foreach (string line in lines)
             {
-                if (line == "pdrss6oneone4fournine")
-                {
-                    Console.WriteLine();
-                }
                 string numberString = "";
                 int tempNumber = 0;
 
