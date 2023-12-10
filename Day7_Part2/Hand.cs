@@ -33,6 +33,10 @@ namespace Day7_Part2
         {
             get
             {
+                if (hand == "J2525")
+                {
+                    Console.WriteLine();
+                }
                 int[] counts = new int[hand.Length];
 
                 for (int i = 0; i < hand.Length; i++) 
@@ -67,7 +71,7 @@ namespace Day7_Part2
                     {
                         
                         
-                        if (hand[i] != match)
+                        if (hand[i] != match && hand[i] != 'J')
                         {
                             if (count == 0)
                             {
@@ -100,7 +104,7 @@ namespace Day7_Part2
                     for (int i = 0; i < hand.Length; i++)
                     {
 
-                        if (hand[i] != match)
+                        if (hand[i] != match && hand[i] != 'J')
                         {
                             if (count == 0)
                             {
