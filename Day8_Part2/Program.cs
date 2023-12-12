@@ -12,9 +12,12 @@ namespace Day8_Part2
             string directions = lines[0];
 
             //List<Node> nodes = new List<Node>();
-            Node[] nodes = new Node[lines.Length - 2];
-            string[,] nodesArray = new string[lines.Length - 2, 3];
-            string[] destinations = new string[lines.Length - 2];
+            //Node[] nodes = new Node[lines.Length - 2];
+            string[][] nodesArray = new string[lines.Length - 2][];
+            for (int i = 0; i < lines.Length - 2; i++)
+            {
+                nodesArray[i] = new string[3];
+            }
 
             for (int i = 2; i < lines.Length; i++)
             {
@@ -29,19 +32,16 @@ namespace Day8_Part2
                 string[] split = lines[i].Split('=');
                 string[] leftRight = split[1].Split(',');
 
-                nodesArray[i - 2, 0] = split[0];
-                nodesArray[i - 2, 1] = leftRight[0];
-                nodesArray[i - 2, 2] = leftRight[1];
+                nodesArray[i - 2][0] = split[0];
+                nodesArray[i - 2][1] = leftRight[0];
+                nodesArray[i - 2][2] = leftRight[1];
                 //nodes.Add(new Node(split[0], leftRight));
                 //nodes[i - 2] = new Node(split[0], leftRight);
 
             }
 
-            for (int i = 0; i < nodesArray.GetLength(0); i++)
-            {
-                destinations[i] = nodesArray[i, 0];
-            }
-            List<Node> paths = new List<Node>();
+           
+            List<string[]> paths = new List<string[]>();
 
             //List<Node> ends = new List<Node>();
             /*
@@ -55,13 +55,10 @@ namespace Day8_Part2
 
             for (int i = 0; i < nodesArray.GetLength(0); i++)
             {
-                
-                
-                    if (nodesArray[i, 0][2] == 'A')
-                    {
-                        paths.Add(new Node(nodesArray[i, 0], new string[] { nodesArray[i, 1], nodesArray[i, 2] }));
-                    }
-                
+                if (nodesArray[i][0][2] == 'A')
+                {
+                    paths.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] } );
+                }
             }
 
             bool reachedEnd = false;
@@ -78,31 +75,22 @@ namespace Day8_Part2
                     }
                     for (int i = 0; i < paths.Count; i++)
                     {
-                        Node currentLocation = paths[i];
+                        string[] currentLocation = paths[i];
 
                         string newNode = null;
 
                         if (c == 'R')
                         {
-                            newNode = currentLocation.leftRight[1];
+                            newNode = currentLocation[2];
                         }
                         if (c == 'L')
                         {
-                            newNode = currentLocation.leftRight[0];
+                            newNode = currentLocation[1];
                         }
-                        /*
-                        foreach (Node node in nodes)
-                        {
-                            if (node.name == newNode)
-                            {
-                                paths[i] = node;
-                                break;
-                            }
-                        }
-                        */
+                        paths[i] = Array.Find(nodesArray, node => node[0] == newNode);
 
-                        int index = Array.IndexOf(destinations, newNode);
-                        paths[i] = new Node(nodesArray[index, 0], new string[] { nodesArray[index, 1], nodesArray[index, 2] });
+                        //int index = Array.IndexOf(destinations, newNode);
+                        //paths[i] = new string[] {nodesArray[index, 0], nodesArray[index, 1], nodesArray[index, 2] };
                             //Array.Find(nodes, node => node.name == newNode);
                     }
 
@@ -112,7 +100,7 @@ namespace Day8_Part2
 
                     
 
-                    if (paths.TrueForAll(node => node.name[2] == 'Z'))
+                    if (paths.TrueForAll(node => node[0][2] == 'Z'))
                     {
                         reachedEnd = true;
                         break;
