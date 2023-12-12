@@ -8,7 +8,7 @@ namespace Day10
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../test.txt");
+            string[] lines = File.ReadAllLines("../../../test2.txt");
             int[] animalPos = null;
             List<int[]> loop = new List<int[]>();
             int loopSize = 0;
@@ -101,7 +101,7 @@ namespace Day10
             } while (currentPos[0] != animalPos[0] || currentPos[1] != animalPos[1]);
 
             Console.WriteLine("Farthest number of steps; " + loopSize/2.0);
-
+            /*
             for (int i = 0; i < loop.Count; i++)
             {
                 int[] tile = loop[i];
@@ -112,7 +112,7 @@ namespace Day10
                     i--;
                 }
             }
-
+            */
             loop.OrderBy(element => element[1])
                 .ThenBy(element => element[0]);
 
@@ -179,42 +179,187 @@ namespace Day10
 
                 for (int j = 0; j < indices.Length; j += 2)
                 {
+                    if (j + 1 >= indices.Length)
+                    {
+                        break;
+                    }
                     int test1 = indices[j];
                     int test2 = indices[j + 1];
                     char debug1 = line[indices[j]];
                     char debug2 = line[indices[j + 1]];
 
+                    
+
+
+                    /*
                     if ((line[indices[j]] == 'L' || line[indices[j]] == 'F')
-                        && (line[indices[j + 1]] == '7' || line[j + 1] == 'J')) 
+                        && (line[indices[j + 1]] == '7' || line[indices[j + 1]] == 'J')
+                        
+                        ) 
                     {
                         j--;
                         continue;
                     }
-
+                    else if (indices.Count() % 2 == 1)
+                    {
+                        //j--;
+                    }
+                    */
+                    /*
                     splitLine[j/2] =
                         Regex.Replace(
                             line.Substring(indices[j], indices[j + 1] - indices[j] + 1),
-                            @"[SF7JL|-]", 
+                            @"[SF7JL|]", 
                             "");
 
+                    /*
                     if ((line[indices[j]] == '|' || line[indices[j + 1]] == '|')
-                        && !(line[indices[j]] == '|' && line[indices[j + 1]] == '|'))
+                        && !(line[indices[j]] == '|' && line[indices[j + 1]] == '|')
+                        && ((Regex.Matches(line, "[|]").Count) % 2 == 1)
+                        )
                     {
                         j += 2;
+                        continue;
                     }
-                }
+                    */
 
+                    /*
+                    else if ((line[indices[j]] == '|' || line[indices[j + 1]] == '|')
+                        && !(line[indices[j]] == '|' && line[indices[j + 1]] == '|'))
+                    {
+                        j++;
+                    }
+                    */
+                }
+                /*
                 for (int j = 0; j < splitLine.Length; j++)
                 {
                     if (!string.IsNullOrEmpty(splitLine[j]))
                     {
-                        count += splitLine[j].Length;
+                        count += Regex.Matches(splitLine[j], "[.]").Count();
                     }
+                }
+                */
+            }
+
+
+            /*
+            for (int i = 0; i < lines.Length; i++)
+            {
+                for (int j = 0; j < lines[i].Length; j++)
+                {
+                    if (lines[i][j] == '.')
+                    {
+                        if (IsInLoop(lines, new int[] { i, j }, loop))
+                        {
+                            count++;
+                        }
+                    }
+                    
+                }
+            }
+            */
+
+            Console.WriteLine(IsInLoop(lines, new int[] { 6, 3 }, loop));
+
+            Console.WriteLine("Number of tiles within the loop: " + count);
+        }
+
+        public static bool IsInLoop(string[] lines, int[] position, List<int[]> loop)
+        {
+            int[] contained = new int[4];
+            string line = lines[position[0]];
+            int yPos = position[0];
+            int xPos = position[1];
+
+            //North
+            for (int k = 1; k < yPos; k++)
+            {
+                string north = "";
+                if (loop.Find(array => (array[0] == yPos - k && array[1] == xPos)) != null)
+                {
+                    north += lines[yPos - k][xPos];                    
+                }
+
+                north = 
+                    Regex.Replace(
+                        Regex.Replace(north, @"\|+", "|"),
+                        @"[JLF7]+",
+                        ""
+                        );
+                if (north.Length % 2 == 1)
+                {
+                    contained[0]++;
+                }
+            }
+            //South
+            for (int k = 1; k < line.Length - yPos; k++)
+            {
+                string south = "";
+                if (loop.Find(array => (array[0] == yPos + k && array[1] == xPos)) != null)
+                {
+                    south += lines[yPos + k][xPos];
+                }
+
+                south =
+                    Regex.Replace(
+                        Regex.Replace(south, @"\|+", "-"),
+                        @"[JLF7]+",
+                        ""
+                        );
+                if (south.Length % 2 == 1)
+                {
+                    contained[1]++;
+                }
+            }
+            //East
+            for (int k = 1; k < line.Length - xPos; k++)
+            {
+                string east = "";
+                if (loop.Find(array => (array[0] == yPos && array[1] == xPos + k)) != null)
+                {
+                    east += lines[yPos][xPos + k];
+                }
+
+                east =
+                    Regex.Replace(
+                        Regex.Replace(east, @"\-+", "-"),
+                        @"[JLF7]+",
+                        ""
+                        );
+                if (east.Length % 2 == 1)
+                {
+                    contained[2]++;
+                }
+            }
+            //West
+            for (int k = 1; k < xPos; k++)
+            {
+                string west = "";
+                if (loop.Find(array => (array[0] == yPos && array[1] == xPos - k)) != null)
+                {
+                    west += lines[yPos][xPos = k];
+                }
+
+                west =
+                    Regex.Replace(
+                        Regex.Replace(west, @"\-+", "-"),
+                        @"[JLF7]+",
+                        ""
+                        );
+                if (west.Length % 2 == 1)
+                {
+                    contained[1]++;
                 }
             }
 
-            Console.WriteLine("Number of tiles within the loop: " + count);
-
+            return Array.TrueForAll(contained, b => (b % 2 == 1));
         }
+            
+
+            
+        
     }
+
+    
 }
