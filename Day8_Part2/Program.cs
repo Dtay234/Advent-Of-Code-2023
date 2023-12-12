@@ -64,15 +64,15 @@ namespace Day8_Part2
                 
             }
 
-            bool notReachedEnd = true;
+            bool reachedEnd = false;
 
             long count = 0;
 
-            while (notReachedEnd)
+            while (!reachedEnd)
             {
                 foreach (char c in directions)
                 {
-                    if (!notReachedEnd)
+                    if (reachedEnd)
                     {
                         break;
                     }
@@ -108,15 +108,14 @@ namespace Day8_Part2
 
                     count++;
 
-                    notReachedEnd = false;
+                    reachedEnd = false;
 
-                    foreach (Node node in paths)
+                    
+
+                    if (paths.TrueForAll(node => node.name[2] == 'Z'))
                     {
-                        if (node.name[2] != 'Z')
-                        {
-                            notReachedEnd = true;
-                            break;
-                        }
+                        reachedEnd = true;
+                        break;
                     }
                 }
 
