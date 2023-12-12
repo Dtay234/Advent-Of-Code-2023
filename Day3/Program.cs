@@ -1,4 +1,5 @@
-﻿using System.Xml.Schema;
+﻿using System.Text.RegularExpressions;
+using System.Xml.Schema;
 
 namespace Day3
 {
@@ -6,118 +7,53 @@ namespace Day3
     {
         static void Main(string[] args)
         {
-            string[] input = File.ReadAllLines("../../../text.txt");
+            string[] lines = File.ReadAllLines("../../../test.txt");
             string symbols = "@#$%&*/+=-";
             string[] nums = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-            List<int> numbers = new List<int>();
+            //List<int> numbers = new List<int>();
             int total = 0;
-            List<Gear> gears = new List<Gear>();
+            //List<Gear> gears = new List<Gear>();
 
-            for (int i = 0; i < input.Length; i++)
+            /*
+            char[,] input = new char[lines.Length, lines[0].Length];
+
+            for (int i = 0; i < lines.Length; i++)
             {
-                string line = input[i];
+                for (int j = 0; j < lines[0].Length; j++)
+                {
+                    input[i, j] = lines[i][j];
+                }
+            }
+            */
+
+            int[][] numbers = new int[lines.Length][];
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] numStrings = Regex.Split(lines[i], @"\D+").Where(s => !string.IsNullOrEmpty(s)).ToArray(); 
+
+                numbers[i] = new int[numStrings.Length];
 
                 
-                string numberString = "";
-                bool nextToSymbol = false;
-                Gear gearToChange = null;
-                bool nextToGear = false;
 
-                for (int j = 0; j < line.Length; j++)
+                for (int j = 0; j < numStrings.Length; j++)
                 {
-                    if (nums.Contains(line[j].ToString()))
-                    {
-                        numberString += line[j];
 
-                        for (int k = -1; k < 2; k++)
-                        {
-                            for (int l = -1; l < 2; l++)
-                            {
-                                /*
-                                if (i == 127 && line[j] == '9')
-                                    Console.WriteLine();
-                                */
+                    numbers[i][j] = int.Parse(numStrings[j]);
+                }
+            }
+            
 
-                                if ((i + k) < input.Length 
-                                    && (j + l < line.Length)
-                                    && (i + k > 0)
-                                    && (j + l > 0))
-                                {
-                                    char check = input[i + k][j + l];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                for (int j = 0; j < lines[0].Length; j++)
+                {
+                    int adjacentNums = 0;
 
-                                    if (symbols.Contains(check))
-                                    {
-                                        nextToSymbol = true;
-                                    }
-                                    
-                                    //PART 2
-                                    if (check == '*')
-                                    {
-                                        nextToGear = true;
-                                        bool contains = false;
-
-                                        foreach (Gear g in gears)
-                                        {
-                                            if (g.line == (i + k) && g.character == (j + l))
-                                            {
-                                                contains = true;
-                                                gearToChange = g;
-                                                
-                                            }
-                                        }
-
-                                        if (!contains)
-                                        {
-                                            gears.Add(new Gear(i + k, j + l));
-                                            gearToChange = gears.Last();
-                                        }
-
-
-                                    }
-                                }
-
-                            }
-                            
-                        }
-                    }
-                    else if (numberString != "" && nextToSymbol)
-                    {
-                        numbers.Add(int.Parse(numberString));
-                        //total += int.Parse(numberString);
-                        nextToSymbol = false;
-                        numberString = "";
-                    }                    
-                    else
-                    {
-                        numberString = "";
-                    }
-                    
-                    if (j == line.Length - 1 && nextToSymbol)
-                    {
-                        numbers.Add(int.Parse(numberString));
-                        //total += int.Parse(numberString);
-                        nextToSymbol = false;
-                        numberString = "";
-                    }
-                    /*
-                    if (!symbols.Contains(line[j]) &&
-                        !nums.Contains(line[j].ToString()) && 
-                        line[j] != '.')
-                    {
-                        Console.WriteLine(line[j]);
-                    }
-                    */
-                    if (nextToGear && numberString != "")
-                    {
-                        gearToChange.gearRatio *= int.Parse(numberString);
-                        gearToChange.adjacent++;
-                    }
-                    
                     
                 }
-
             }
-
+            /*
             foreach (int i in numbers)
             {
                 total += i;
@@ -133,9 +69,10 @@ namespace Day3
                     gearTotal += g.gearRatio;
                 }
             }
+            
 
             Console.WriteLine(gearTotal);
-
+            */
         }
     }
 }
