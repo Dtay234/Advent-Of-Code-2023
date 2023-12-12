@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
+using System.Numerics;
 
 namespace Day8_Part2
 {
@@ -42,6 +43,7 @@ namespace Day8_Part2
 
            
             List<string[]> paths = new List<string[]>();
+            List<string[]> paths2 = new List<string[]>();
 
             //List<Node> ends = new List<Node>();
             /*
@@ -58,13 +60,14 @@ namespace Day8_Part2
                 if (nodesArray[i][0][2] == 'A')
                 {
                     paths.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] } );
+                    paths2.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] });
                 }
             }
 
             bool reachedEnd = false;
 
-            long count = 0;
-
+            BigInteger count = 0;
+            /*
             while (!reachedEnd)
             {
                 foreach (char c in directions)
@@ -108,7 +111,103 @@ namespace Day8_Part2
                 }
 
             }
+            */
 
+            
+            long[] factors = new long[paths.Count];
+            
+            for (int i = 0; i < paths.Count; i++)
+            {
+                reachedEnd = false;
+                long onePath = 0;
+
+                while (!reachedEnd)
+                {
+                    foreach (char c in directions)
+                    {
+                        string[] currentLocation = paths[i];
+
+                        string newNode = null;
+
+                        if (c == 'R')
+                        {
+                            newNode = currentLocation[2];
+                        }
+                        if (c == 'L')
+                        {
+                            newNode = currentLocation[1];
+                        }
+                        paths[i] = Array.Find(nodesArray, node => node[0] == newNode);
+
+                        onePath++;
+
+                        if (paths[i][0][2] == 'Z')
+                        {
+                            reachedEnd = true;
+                            break;
+                        }
+                    }
+                }
+
+                
+
+                factors[i] = onePath;
+            }
+
+            reachedEnd = false;
+
+            while (!reachedEnd)
+            {
+                for (int i = 0; i < factors.Max(); i++)
+                {
+                    char c = directions[(int)((count + i) % directions.Length)];
+
+                    for (int j = 0; j < paths2.Count; j++)
+                    {
+
+                        
+                        string[] currentLocation = paths2[j];
+
+                        string newNode = null;
+
+                        if (c == 'R')
+                        {
+                            newNode = currentLocation[2];
+                        }
+                        if (c == 'L')
+                        {
+                            newNode = currentLocation[1];
+                        }
+
+                        paths2[j] = Array.Find(nodesArray, node => node[0] == newNode);
+
+                    }
+
+                    //count++;
+                }
+
+                count += factors.Max();
+
+                if (paths2.TrueForAll(node => node[0][2] == 'Z'))
+                {
+                    reachedEnd = true;
+                    break;
+                }
+            }
+
+            foreach (long factor in factors)
+            {
+                if (count % factor != 0)
+                {
+                    count *= factor;
+                }
+            }
+            if (count == long.MinValue)
+            {
+                Console.WriteLine();
+            }
+
+            
             Console.WriteLine(count);
         }
     }
