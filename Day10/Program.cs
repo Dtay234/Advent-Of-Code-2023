@@ -8,7 +8,7 @@ namespace Day10
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../test2.txt");
+            string[] lines = File.ReadAllLines("../../../text.txt");
             int[] animalPos = null;
             List<int[]> loop = new List<int[]>();
             int loopSize = 0;
@@ -117,7 +117,7 @@ namespace Day10
                 .ThenBy(element => element[0]);
 
             int count = 0;
-
+            /*
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i];
@@ -165,7 +165,7 @@ namespace Day10
                     .Where(s => !string.IsNullOrEmpty(s)).ToArray();
                 // Array.Find(line, )
                 */
-                
+                /*
                 int[][] tempIndices = loop.FindAll(array => array[0] == i)
                     .OrderBy(x => x[1]).ToArray();
                 int[] indices = new int[tempIndices.GetLength(0)];
@@ -230,7 +230,9 @@ namespace Day10
                         j++;
                     }
                     */
-                }
+                    
+                
+
                 /*
                 for (int j = 0; j < splitLine.Length; j++)
                 {
@@ -240,120 +242,111 @@ namespace Day10
                     }
                 }
                 */
-            }
+            
 
 
-            /*
+            
             for (int i = 0; i < lines.Length; i++)
             {
                 for (int j = 0; j < lines[i].Length; j++)
                 {
-                    if (lines[i][j] == '.')
+                    if (!(loop.Exists(array => array[0] == i && array[1] == j)))
                     {
-                        if (IsInLoop(lines, new int[] { i, j }, loop))
+                        if (IsInLoop(lines, j, i, loop))
                         {
                             count++;
                         }
-                    }
-                    
+                    }            
                 }
             }
-            */
+            
 
-            Console.WriteLine(IsInLoop(lines, new int[] { 6, 3 }, loop));
+            //Console.WriteLine(IsInLoop(lines, new int[] { 6, 2 }, loop));
 
             Console.WriteLine("Number of tiles within the loop: " + count);
+
+            //Incorrect: 249 (low), 261 (low), 
         }
 
-        public static bool IsInLoop(string[] lines, int[] position, List<int[]> loop)
+        public static bool IsInLoop(string[] lines, int xPos, int yPos, List<int[]> loop)
         {
-            int[] contained = new int[4];
-            string line = lines[position[0]];
-            int yPos = position[0];
-            int xPos = position[1];
+            bool[] contained = new bool[4];
+            string line = lines[yPos];
+            
 
             //North
-            for (int k = 1; k < yPos; k++)
+            string north = "";
+            for (int k = 1; k < yPos + 1; k++)
             {
-                string north = "";
+                
                 if (loop.Find(array => (array[0] == yPos - k && array[1] == xPos)) != null)
                 {
-                    north += lines[yPos - k][xPos];                    
-                }
-
-                north = 
-                    Regex.Replace(
-                        Regex.Replace(north, @"\|+", "|"),
-                        @"[JLF7]+",
-                        ""
-                        );
-                if (north.Length % 2 == 1)
-                {
-                    contained[0]++;
+                    north += lines[yPos - k][xPos];
                 }
             }
+            string temp = Regex.Replace(north, @"\|+", "");
+                north = Regex.Replace(temp, @"JF|L7|SF", "|");
+
+                if (north.Length % 2 == 1)
+                {
+                    contained[0] = true;
+                }
+
             //South
+            string south = "";
             for (int k = 1; k < line.Length - yPos; k++)
             {
-                string south = "";
+                
                 if (loop.Find(array => (array[0] == yPos + k && array[1] == xPos)) != null)
                 {
                     south += lines[yPos + k][xPos];
                 }
 
-                south =
-                    Regex.Replace(
-                        Regex.Replace(south, @"\|+", "-"),
-                        @"[JLF7]+",
-                        ""
-                        );
-                if (south.Length % 2 == 1)
-                {
-                    contained[1]++;
-                }
+                
+            }
+            south = Regex.Replace(Regex.Replace(south, @"\|+", ""), @"FJ|7L|FS", "|");
+
+            if (south.Length % 2 == 1)
+            {
+                contained[1] = true;
             }
             //East
+            string east = "";
             for (int k = 1; k < line.Length - xPos; k++)
             {
-                string east = "";
+                
                 if (loop.Find(array => (array[0] == yPos && array[1] == xPos + k)) != null)
                 {
                     east += lines[yPos][xPos + k];
                 }
 
-                east =
-                    Regex.Replace(
-                        Regex.Replace(east, @"\-+", "-"),
-                        @"[JLF7]+",
-                        ""
-                        );
-                if (east.Length % 2 == 1)
-                {
-                    contained[2]++;
-                }
+                
+            }
+            east = Regex.Replace(Regex.Replace(east, @"\-+", ""), @"FJ|L7|FS", "-");
+            if (east.Length % 2 == 1)
+            {
+                contained[2] = true;
             }
             //West
-            for (int k = 1; k < xPos; k++)
+            string west = "";
+            for (int k = 1; k < xPos + 1; k++)
             {
-                string west = "";
+                
                 if (loop.Find(array => (array[0] == yPos && array[1] == xPos - k)) != null)
                 {
-                    west += lines[yPos][xPos = k];
+                    west += lines[yPos][xPos - k];
                 }
 
-                west =
-                    Regex.Replace(
-                        Regex.Replace(west, @"\-+", "-"),
-                        @"[JLF7]+",
-                        ""
-                        );
-                if (west.Length % 2 == 1)
-                {
-                    contained[1]++;
-                }
+                
+            }
+            west = Regex.Replace(Regex.Replace(west, @"\-+", ""), @"JF|7L|SF", "-");
+            if (west.Length % 2 == 1)
+            {
+                contained[3] = true;
             }
 
-            return Array.TrueForAll(contained, b => (b % 2 == 1));
+            bool thingToReturn = Array.TrueForAll(contained, b => b);
+            return thingToReturn;
         }
             
 
