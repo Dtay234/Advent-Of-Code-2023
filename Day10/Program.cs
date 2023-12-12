@@ -174,35 +174,35 @@ namespace Day10
                 {
                      indices[k] = tempIndices[k][1];
                 }
+                
+                string[] splitLine = new string[indices.Length / 2 + 1];
 
-                string[] splitLine = new string[indices.Length / 2];
-
-                try
+                for (int j = 0; j < indices.Length; j += 2)
                 {
-                    for (int j = 0; j < indices.Length; j += 2)
+                    int test1 = indices[j];
+                    int test2 = indices[j + 1];
+                    char debug1 = line[indices[j]];
+                    char debug2 = line[indices[j + 1]];
+
+                    if ((line[indices[j]] == 'L' || line[indices[j]] == 'F')
+                        && (line[indices[j + 1]] == '7' || line[j + 1] == 'J')) 
                     {
-                        int test1 = indices[j];
-                        int test2 = indices[j + 1];
-                        splitLine[j / 2] =
-                            Regex.Replace(
-                                line.Substring
-                                    (indices[j], indices[j + 1] - indices[j] + 1),
-                                @"[SF7JL|-]",
-                                "");
+                        j--;
+                        continue;
+                    }
+
+                    splitLine[j/2] =
+                        Regex.Replace(
+                            line.Substring(indices[j], indices[j + 1] - indices[j] + 1),
+                            @"[SF7JL|-]", 
+                            "");
+
+                    if ((line[indices[j]] == '|' || line[indices[j + 1]] == '|')
+                        && !(line[indices[j]] == '|' && line[indices[j + 1]] == '|'))
+                    {
+                        j += 2;
                     }
                 }
-                catch (IndexOutOfRangeException e)
-                {
-                    for (int j = 1; j < indices.Length; j += 2)
-                    {
-                        splitLine[j / 2] =
-                            Regex.Replace(
-                                line.Substring(indices[0], indices[1] - indices[0] + 1),
-                                @"[SF7JL|-]",
-                                "");
-                    }
-                }
-
 
                 for (int j = 0; j < splitLine.Length; j++)
                 {
