@@ -12,8 +12,6 @@ namespace Day8_Part2
             string[] lines = File.ReadAllLines("../../../text.txt");
             string directions = lines[0];
 
-            //List<Node> nodes = new List<Node>();
-            //Node[] nodes = new Node[lines.Length - 2];
             string[][] nodesArray = new string[lines.Length - 2][];
             for (int i = 0; i < lines.Length - 2; i++)
             {
@@ -36,86 +34,28 @@ namespace Day8_Part2
                 nodesArray[i - 2][0] = split[0];
                 nodesArray[i - 2][1] = leftRight[0];
                 nodesArray[i - 2][2] = leftRight[1];
-                //nodes.Add(new Node(split[0], leftRight));
-                //nodes[i - 2] = new Node(split[0], leftRight);
 
             }
 
-           
+
             List<string[]> paths = new List<string[]>();
             List<string[]> paths2 = new List<string[]>();
-
-            //List<Node> ends = new List<Node>();
-            /*
-            foreach (Node node in nodes)
-            {
-                if (node.name[2] == 'A')
-                {
-                    paths.Add(node);
-                }
-            }*/
 
             for (int i = 0; i < nodesArray.GetLength(0); i++)
             {
                 if (nodesArray[i][0][2] == 'A')
                 {
-                    paths.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] } );
+                    paths.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] });
                     paths2.Add(new string[] { nodesArray[i][0], nodesArray[i][1], nodesArray[i][2] });
                 }
             }
 
             bool reachedEnd = false;
 
-            BigInteger count = 0;
-            /*
-            while (!reachedEnd)
-            {
-                foreach (char c in directions)
-                {
-                    if (reachedEnd)
-                    {
-                        break;
-                    }
-                    for (int i = 0; i < paths.Count; i++)
-                    {
-                        string[] currentLocation = paths[i];
+            BigInteger count = 0;           
 
-                        string newNode = null;
-
-                        if (c == 'R')
-                        {
-                            newNode = currentLocation[2];
-                        }
-                        if (c == 'L')
-                        {
-                            newNode = currentLocation[1];
-                        }
-                        paths[i] = Array.Find(nodesArray, node => node[0] == newNode);
-
-                        //int index = Array.IndexOf(destinations, newNode);
-                        //paths[i] = new string[] {nodesArray[index, 0], nodesArray[index, 1], nodesArray[index, 2] };
-                            //Array.Find(nodes, node => node.name == newNode);
-                    }
-
-                    count++;
-
-                    reachedEnd = false;
-
-                    
-
-                    if (paths.TrueForAll(node => node[0][2] == 'Z'))
-                    {
-                        reachedEnd = true;
-                        break;
-                    }
-                }
-
-            }
-            */
-
-            
             long[] factors = new long[paths.Count];
-            
+
             for (int i = 0; i < paths.Count; i++)
             {
                 reachedEnd = false;
@@ -129,15 +69,15 @@ namespace Day8_Part2
 
                         string newNode = null;
 
-                        if (c == 'R')
-                        {
-                            newNode = currentLocation[2];
-                        }
-                        if (c == 'L')
-                        {
-                            newNode = currentLocation[1];
-                        }
-                        paths[i] = Array.Find(nodesArray, node => node[0] == newNode);
+                        Tuple<string, string, char> input = 
+                            new Tuple<string, string, char>(currentLocation[1], currentLocation[2], c);
+
+                        newNode = GetNodeMemo(input);
+
+                        Tuple<string, string[][]> input2 = 
+                            new Tuple<string, string[][]>(newNode, nodesArray);
+
+                        paths[i] = SetNodeMemo(input2);
 
                         onePath++;
 
@@ -149,66 +89,174 @@ namespace Day8_Part2
                     }
                 }
 
-                
+
 
                 factors[i] = onePath;
             }
 
             reachedEnd = false;
 
+            paths = null;
+            bool[] ends = new bool[paths2.Count];
+            
             while (!reachedEnd)
             {
-                for (int i = 0; i < factors.Max(); i++)
+                for (int i = 0; i < paths2.Count; i++)
                 {
-                    char c = directions[(int)((count + i) % directions.Length)];
+                    bool multiple = true;
 
-                    for (int j = 0; j < paths2.Count; j++)
+                    foreach (long l in factors)
                     {
-
-                        
-                        string[] currentLocation = paths2[j];
-
-                        string newNode = null;
-
-                        if (c == 'R')
+                        if ((count % l) != 0 )
                         {
-                            newNode = currentLocation[2];
+                            multiple = false;
                         }
-                        if (c == 'L')
-                        {
-                            newNode = currentLocation[1];
-                        }
-
-                        paths2[j] = Array.Find(nodesArray, node => node[0] == newNode);
-
                     }
 
-                    //count++;
+                    if (!multiple)
+                    {
+                        break;
+                    }
+
+                    Tuple<string[][], long, string, BigInteger, int> tuple =
+                        new Tuple<string[][], long, string, BigInteger, int>
+                            (nodesArray, factors.Max(), directions, count, i);
+
+                    if (PathEnd(tuple, paths2))
+                    {
+                        ends[i] = true;
+                    }
+                    else
+                    {
+                        ends[i] = false;
+                    }
+
+                    
                 }
 
                 count += factors.Max();
 
-                if (paths2.TrueForAll(node => node[0][2] == 'Z'))
-                {
-                    reachedEnd = true;
-                    break;
-                }
+                reachedEnd = TrueForAll(ends);
             }
-
-            foreach (long factor in factors)
-            {
-                if (count % factor != 0)
-                {
-                    count *= factor;
-                }
-            }
-            if (count == long.MinValue)
-            {
-                Console.WriteLine();
-            }
-
             
+           
+            
+
             Console.WriteLine(count);
+        }
+
+        #region Getting the name of the next node
+
+        public static Func<Tuple<string, string, char>, string> GetNextNode =
+                    (tuple => GetNode(tuple));
+
+        public static Func<Tuple<string, string, char>, string> GetNodeMemo =
+            GetNextNode.Memoize();
+
+        public static string GetNode(Tuple<string, string, char> tuple)
+        {
+            char c = tuple.Item3;
+            string left = tuple.Item1;
+            string right = tuple.Item2;
+            string newNode = null;
+
+            if (c == 'R')
+            {
+                newNode = right;
+            }
+            if (c == 'L')
+            {
+                newNode = left;
+            }
+
+            return newNode;
+        }
+
+        #endregion
+
+        #region Getting the next node based on the node
+
+        public static Func<Tuple<string, string[][]>, string[]> SetNodeFunction = 
+            x => SetNode(x);
+
+        public static Func<Tuple<string, string[][]>, string[]> SetNodeMemo = 
+            SetNodeFunction.Memoize();
+
+        public static string[] SetNode(Tuple<string, string[][]> tuple)
+        {
+
+            string[][] nodes = tuple.Item2;
+            string nodeName = tuple.Item1;
+            string[] thingToReturn = Array.Find(nodes, node => node[0] == nodeName);
+
+            return thingToReturn;
+        }
+
+        #endregion
+
+        public static bool PathEnd
+            (Tuple<
+                string[][], 
+                long, 
+                string, 
+                BigInteger, 
+                int> 
+            tuple, 
+            List<string[]> paths)
+        {
+            long repetitions = tuple.Item2;
+            string directions = tuple.Item3;
+            BigInteger count = tuple.Item4;
+            string[][] nodesArray = tuple.Item1;
+            bool end = false;
+            string[] currentLocation = paths[tuple.Item5];
+
+            for (int i = 0; i < count; i++)
+            {
+                char c = directions[(int)((count + i) % directions.Length)];
+
+                string newNode = null;
+
+                Tuple<string, string, char> input =
+                    new Tuple<string, string, char>(currentLocation[1], currentLocation[2], c);
+
+                newNode = GetNodeMemo(input);
+
+                Tuple<string, string[][]> input2 =
+                    new Tuple<string, string[][]>(newNode, nodesArray);
+
+                currentLocation = SetNodeMemo(input2);
+                paths[tuple.Item5] = currentLocation;
+                
+
+            }
+
+            if (currentLocation[0][2] == 'Z')
+            {
+                end = true;
+            }
+
+
+            return end;
+        }
+
+
+        public static Func<bool[], bool> TempFunc = 
+            x => TrueForAll(x);
+
+        public static Func<bool[], bool> TrueForAllMemo =
+            TempFunc.Memoize();
+
+        public static bool TrueForAll(bool[] array)
+        {
+            if (array.ToList().TrueForAll(x => x))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

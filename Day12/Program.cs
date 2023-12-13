@@ -6,9 +6,10 @@ namespace Day12
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../text.txt");
+            string[] lines = File.ReadAllLines("../../../test.txt");
             int count = 0;
             List<string> solutions = new List<string>();
+            //Func<Tuple<string, List<string>, int>, int> memoizedFunction = function.Memoize();
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -38,10 +39,12 @@ namespace Day12
                 */
 
 
-                count += GetPermutations(lines[i], solutions, 0);
+
+                Tuple<string, List<string>, int> tuple = new Tuple<string, List<string>, int>(lines[i], solutions, 0);
+
+
+                count += functionMemo(tuple);
                 
-
-
                 
             }
 
@@ -50,77 +53,147 @@ namespace Day12
             //count += GetPermutations("???.### 1,1,3", solutions);
             
             Console.WriteLine("Number of different arrangements of springs: " + count);
+
+            
+
+                
         }
 
-        public static int GetPermutations(string originalLine, List<string> solutions, int startIndex)
+        /*
+        public static Func<Tuple<string, List<string>, int>, int> function =
+            (thing => GetPermutations(thing));
+        */
+
+       
+
+        public static Func<Tuple<string, List<string>, int>, int> function = 
+            (x => GetPermutations(x));
+
+        public static Func<Tuple<string, List<string>, int>, int> functionMemo =
+            function.Memoize();
+
+
+        public static int GetPermutations(
+            //string originalLine, List<string> solutions, int startIndex
+            Tuple<string, List<string>, int> tuple)
         {
-            string line = Regex.Split(originalLine, @"[,\d ]")
+
+                    string originalLine = tuple.Item1;
+                    List<string> solutions = tuple.Item2;
+                    int startIndex = tuple.Item3;
+
+                    // Here comes the original code
+                    string line = Regex.Split(originalLine, @"[,\d ]")
                     .Where(s => !string.IsNullOrEmpty(s))
-                    .ToArray()[0]; 
-            int count = 0;
+                    .ToArray()[0];
+                    int count = 0;
 
-            string[] groups = Regex.Split(originalLine, @"[.#, ?]")
-                    .Where(s => !string.IsNullOrEmpty(s))
-                    .ToArray();
+                    string[] tempGroups = Regex.Split(originalLine, @"[.#, ?]")
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .ToArray();
 
-            for (int i = 0 + startIndex; i < line.Length; i++)
-            {
-                if (line[i] == '?' && !originalLine.Substring(0, i).Contains('?'))
-                {
-                    startIndex++;
-                    string newLine = originalLine.Substring(0, i) + "." + originalLine.Substring(i + 1);
-                    string newLine2 = originalLine.Substring(0, i) + "#" + originalLine.Substring(i + 1);
-                    int test = newLine.Length;
-                    count += GetPermutations(newLine,  solutions, i);
-                    
-                    count += GetPermutations(newLine2, solutions, i);
-
-                    
-                }
-                else if (i == line.Length - 1 && !line.Contains('?'))
-                {
-                    string[] match = new string[groups.Length];
-
-                    for (int j = 0; j < match.Length; j++)
+                    //Get rid of following loops for part 1
+                    for (int j = 0; j < 4; j++)
                     {
-                        string thing = "";
-                        for (int k = 0; k < int.Parse(groups[j]); k++)
-                        {
-                            thing += "#";
-                        }
-
-                        match[j] = thing;
+                        line += "?" + line;
                     }
 
-                    string[] hashes = Regex.Split(line, @"[.,\d ]")
-                    .Where(s => !string.IsNullOrEmpty(s))
-                    .ToArray();
+                    string[] groups = new string[tempGroups.Length * 5];
 
-                    
-
-                    if (hashes.Length == match.Length 
-                        //&& !solutions.Contains(line)
-                        //&& line.Length == originalLine.Length
-                        )
+                    for (int i = 0; i < groups.Length; i++)
                     {
-                        bool matches = true;
+                        groups[i] = tempGroups[i % tempGroups.Length];
+                    }
 
-                        for (int j = 0; j < match.Length; j++)
+                    originalLine = line + " ";
+                    for (int i = 0; i < groups.Length; i++)
+                    {
+                        originalLine += groups[i];
+                        if (i != groups.Length - 1)
                         {
-                            if (match[j] != hashes[j])
+                            originalLine += ",";
+                        }
+                    }
+
+
+
+                    for (int i = 0 + startIndex; i < line.Length; i++)
+                    {
+                        if (line[i] == '?' && !originalLine.Substring(0, i).Contains('?'))
+                        {
+                            startIndex++;
+                            string newLine = originalLine.Substring(0, i) + "." + originalLine.Substring(i + 1);
+                            string newLine2 = originalLine.Substring(0, i) + "#" + originalLine.Substring(i + 1);
+                            int test = newLine.Length;
+
+                            tuple = new Tuple<string, List<string>, int>(newLine, solutions, i);
+                            count += functionMemo(tuple);
+                            tuple = new Tuple<string, List<string>, int>(newLine2, solutions, i);
+                            count += functionMemo(tuple);
+
+
+                        }
+                        else if (i == line.Length - 1 && !line.Contains('?'))
+                        {
+                            string[] match = new string[groups.Length];
+
+                            for (int j = 0; j < match.Length; j++)
                             {
-                                matches = false;
+                                string thing = "";
+                                for (int k = 0; k < int.Parse(groups[j]); k++)
+                                {
+                                    thing += "#";
+                                }
+
+                                match[j] = thing;
                             }
+
+                            string[] hashes = Regex.Split(line, @"[.,\d ]")
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .ToArray();
+
+                            bool matches = true;
+
+                            /*
+                            while (hashes.Length == match.Length
+                                && matches)
+                            {
+                                if (match[counter] != hashes[counter])
+                                {
+                                    matches = false;
+                                }
+                                counter++;
+                            }
+
+                            if (matches)
+                                count++;
+                            */
+
+                            if (hashes.Length == match.Length
+                                //&& !solutions.Contains(line)
+                                //&& line.Length == originalLine.Length
+                                )
+                            {
+
+
+                                for (int j = 0; j < match.Length; j++)
+                                {
+                                    if (match[j] != hashes[j])
+                                    {
+                                        matches = false;
+                                        break;
+                                    }
+                                }
+
+                                if (matches)
+                                    //solutions.Add(line);
+                                    count++;
+                            }
+
                         }
-
-                        if (matches)
-                            //solutions.Add(line);
-                            count++;
                     }
-                }
-            }
 
-            return count;
+                    return count;
         }
     }
 }
