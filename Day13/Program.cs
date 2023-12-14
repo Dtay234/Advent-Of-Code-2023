@@ -89,57 +89,65 @@
 
                         for (int k = 0; k < lines2.Length; k++)
                         {
-                            lines2[k] = "";
+                            string line = "";
 
-                            for (int j = 0; j < verticalReflection.Count; j++)
+                            for (int j = 0; j < (d - temp + 1); j++)
                             {
-                                lines2[k] += lines[j + temp][k];
+                                line += lines[j + temp][k];
                             }
+
+                            lines2[k] = line;
                         }
 
-                        for (int i = 1; i < verticalReflection[0].Length; i++)
+
+                        for (int i = 1; i < lines2.Length ; i++)
                         {
                             possibleReflection.Add(i);
                         }
 
-                        string column = lines2[0];
-
-                        for (int j = 0; j < lines2[0].Length; j++)
+                        for (int i = 0; i < lines2.Length; i++)
                         {
-                            if (j <= lines2[0].Length / 2.0)
+                            string column = lines[i];
+
+                            for (int j = 0; j < lines2[0].Length; j++)
                             {
-                                string tempString = column.Substring(0, j);
-                                string tempString2 = column.Substring(j, j);
 
-                                char[] array = tempString.ToCharArray();
-                                array = array.Reverse().ToArray();
-                                tempString = new string(array);
-
-                                if (tempString != tempString2)
+                                if (j <= lines2[0].Length / 2.0)
                                 {
-                                    possibleReflection.Remove(j);
+                                    string tempString = column.Substring(0, j);
+                                    string tempString2 = column.Substring(j, j);
+
+                                    char[] array = tempString.ToCharArray();
+                                    array = array.Reverse().ToArray();
+                                    tempString = new string(array);
+
+                                    if (tempString != tempString2)
+                                    {
+                                        possibleReflection.Remove(j);
+                                    }
                                 }
-                            }
 
 
-                            else
-                            {
-                                string tempString = tempString = column.Substring(j);
-                                string tempString2 = column.Substring(j - tempString.Length, tempString.Length);
-
-                                char[] array = tempString2.ToCharArray();
-                                array = array.Reverse().ToArray();
-                                tempString2 = new string(array);
-
-
-                                if (tempString != null &&
-                                    tempString != tempString2)
+                                else
                                 {
-                                    possibleReflection.Remove(j);
-                                }
-                            }
+                                    string tempString = tempString = column.Substring(j);
+                                    string tempString2 = column.Substring(j - tempString.Length, tempString.Length);
 
+                                    char[] array = tempString2.ToCharArray();
+                                    array = array.Reverse().ToArray();
+                                    tempString2 = new string(array);
+
+
+                                    if (tempString != null &&
+                                        tempString != tempString2)
+                                    {
+                                        possibleReflection.Remove(j);
+                                    }
+                                }
+
+                            }
                         }
+                        
                     }
 
                     temp = d + 1;
