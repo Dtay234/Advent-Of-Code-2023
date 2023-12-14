@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Numerics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -10,6 +11,8 @@ namespace Day12
     {
         static void Main(string[] args)
         {
+            //GetMatchesNew("?###???????? 3,2,1");
+
             string[] lines = File.ReadAllLines("../../../text.txt");
             long count = 0;
             List<string> solutions = new List<string>();
@@ -45,7 +48,7 @@ namespace Day12
                     }
                 }
 
-                count += GetCombinations(newLine);
+                count += GetMatchesNew(newLine);
             }
 
             Console.WriteLine("Number of different arrangements of springs: " + count);
@@ -91,7 +94,7 @@ namespace Day12
             int unknown = Regex.Matches(input, @"[?]").Count();
             int[] unknownIndices = new int[unknown];
             int counter = 0;
-            long combinations = (long)Math.Pow(2, unknown);
+            BigInteger combinations = (BigInteger)Math.Pow(2, unknown);
 
             string[] groups = Regex.Split(input, @"[.#, ?]")
                     .Where(s => !string.IsNullOrEmpty(s))
@@ -152,6 +155,43 @@ namespace Day12
             {
                 return input.Substring(0, index) + "." + input.Substring(index + 1);
             }
+        }
+
+        public static long GetMatchesNew(string input)
+        {
+            string[] unknowns = Regex.Split(input, @"[^?#]+")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToArray();
+            string[] groups = Regex.Split(input, @"\D+")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToArray();
+
+            long total = 1;
+
+            for (int i = 0; i < unknowns.Length; i++)
+            {
+                if (Regex.Replace(unknowns[i], @"[?]+", "").Length != int.Parse(groups[i]))
+                {
+                    total *= GetCombinations(input);
+                }
+                else
+                {
+                    for (int j = 0; j < unknowns.Length; j++)
+                    {
+                        //NOTE: Try something with substrings
+
+                        string s = unknowns[j];
+                        string s2 = groups[j];
+
+                        if (s != null)
+                        {
+                            total *= GetCombinations(s + " " + s2);
+                        }
+                    }
+                }
+            }
+
+            return total;
         }
     }
 }

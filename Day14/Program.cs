@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Day14
 {
@@ -7,14 +9,56 @@ namespace Day14
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../test.txt");
+            string[] lines = File.ReadAllLines("../../../text.txt");
             int total = 0;
-            
+            List<string[]> duplicates = new List<string[]>();
+            int offset = 0;
 
-            for (int z = 0; z < 100000; z++)
+            for (int z = 0; z < 1000000000; z++)
             {
                 lines = CycleMemo(lines);
+
+                /*
+                Console.Clear();
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    for (int j = 0; j < lines[i].Length; j++)
+                    {
+                        Console.Write(lines[i][j] + " ");
+                    }
+
+                    Console.WriteLine();
+                }
+                
+                Console.WriteLine(z);
+                */
+
+                if (duplicates.Exists
+                   (x => Enumerable.SequenceEqual(lines, x)))
+                {
+                    int index = duplicates.FindIndex(x => Enumerable.SequenceEqual(lines, x));
+                    duplicates.RemoveRange(0, index);
+                    offset = index + 1;
+
+                    break;
+
+                }
+                else
+                {
+                    string[] thing = new string[lines.Length];
+                    lines.CopyTo(thing, 0);
+
+                    duplicates.Add(thing);
+                }
+
+                
+
             }
+
+            int test = (1000000000 - offset) % (duplicates.Count);
+
+            lines = duplicates[test];
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -30,50 +74,33 @@ namespace Day14
             Console.WriteLine(total);
         }
 
-        public static Func<List<char>, List<char>> TempFunc =
+        //Incorrect: 93154 (high) 
+
+        public static Func<string[], string[]> TempFunc =
             x => TiltPlatform(x);
 
-        public static Func<List<char>, List<char>> TiltPlatformMemo =
+        public static Func<string[], string[]> TiltPlatformMemo =
             TempFunc.Memoize();
 
-        public static List<char> TiltPlatform(List<char> listToSort) 
+        public static string[] TiltPlatform(string[] newLines) 
         {
-            for (int k = 1; k < listToSort.Count; k++)
+
+            for (int i = 0; i < newLines.Length; i++)
             {
-                if (listToSort[k] == 'O')
+                string[] matches = Regex.Matches(newLines[i], @"[.O]+[O]{1}")
+                  .OfType<Match>()
+                  .Select(m => m.Groups[0].Value)
+                  .ToArray();
+
+                foreach (string s in matches)
                 {
-
-                    int counter = 1;
-
-
-                    try
-                    {
-
-                        while (listToSort[k - counter] == '.')
-                        {
-                            counter++;
-                        }
-                    }
-                    catch (ArgumentOutOfRangeException e)
-                    {
-                        counter--;
-                    }
-
-                    if (listToSort[k - counter] == '#')
-                    {
-                        counter--;
-                    }
-
-
-                    listToSort.RemoveAt(k);
-                    listToSort.Insert(k - counter, 'O');
-
+                    Regex rx = new Regex(string.Join("\\.", s.Split('.')));
+                    string sortedString = string.Join("", s.ToCharArray().ToList().OrderByDescending(x => x).ToArray());
+                    newLines[i] = rx.Replace(newLines[i], sortedString, 1);
                 }
-
-
             }
 
-            return listToSort;
+            return newLines;
         }
 
         public static Func<string, string> TempFunc1 =
@@ -144,49 +171,19 @@ namespace Day14
         {
             string[] newLines = SwitchOrientationMemo(lines);
 
-            for (int i = 0; i < newLines.Length; i++)
-            {
-                string[] thing = Regex.Replace(newLines[i], 
-                    @"[.O]+", )
-                List<char> listToSort = newLines[i].ToList();
-
-                TiltPlatformMemo(listToSort);
-
-                newLines[i] = new string(listToSort.ToArray());
-            }
+            newLines = TiltPlatformMemo(newLines);
 
             newLines = SwitchOrientationMemo(newLines);
 
-            for (int i = 0; i < newLines.Length; i++)
-            {
-                List<char> listToSort = newLines[i].ToList();
-
-                TiltPlatformMemo(listToSort);
-
-                newLines[i] = new string(listToSort.ToArray());
-            }
+            newLines = TiltPlatformMemo(newLines);
 
             newLines = ReverseArray(SwitchOrientationMemo(newLines));
 
-            for (int i = 0; i < newLines.Length; i++)
-            {
-                List<char> listToSort = newLines[i].ToList();
-
-                TiltPlatformMemo(listToSort);
-
-                newLines[i] = new string(listToSort.ToArray());
-            }
+            newLines = TiltPlatformMemo(newLines);
 
             newLines = ReverseArray(SwitchOrientationMemo(ReverseArray(newLines)));
 
-            for (int i = 0; i < newLines.Length; i++)
-            {
-                List<char> listToSort = newLines[i].ToList();
-
-                TiltPlatformMemo(listToSort);
-
-                newLines[i] = new string(listToSort.ToArray());
-            }
+            newLines = TiltPlatformMemo(newLines);
 
             newLines = ReverseArray(newLines);
 
