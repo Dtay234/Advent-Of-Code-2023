@@ -4,24 +4,24 @@
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../test.txt");
-            List<string> horizontalReflection = new List<string>();
-            List<string> verticalReflection = new List<string>();
+            string[] lines = File.ReadAllLines("../../../text.txt");
+            List<string> verticalReflect = new List<string>();
+            List<string> horizontalReflect = new List<string>();
             int total = 0;
 
             for (int d = 0; d < lines.Length; d++)
             {   
                 if (!string.IsNullOrEmpty(lines[d]))
                 {
-                    horizontalReflection.Add(lines[d]);
-                    while (verticalReflection.Count < lines[d].Length)
+                    verticalReflect.Add(lines[d]);
+                    while (horizontalReflect.Count < lines[d].Length)
                     {
-                        verticalReflection.Add("");
+                        horizontalReflect.Add("");
                     }
 
-                    for (int i = 0; i < verticalReflection.Count; i++)
+                    for (int i = 0; i < horizontalReflect.Count; i++)
                     {
-                        verticalReflection[i] += lines[d][i];
+                        horizontalReflect[i] += lines[d][i];
                     }
                 }
                 
@@ -41,21 +41,24 @@
 
                     int index;
 
-                    bool horizontal = GetReflection(horizontalReflection, out index);
+                    bool horizontal = GetReflection(verticalReflect, out index);
 
                     if (!horizontal)
                     {
-                        bool vertical = GetReflection(verticalReflection, out index);
+                        bool vertical = GetReflection(horizontalReflect, out index);
 
-                        total += index * 100;
+                        if (vertical)
+                        {
+                            total += index;
+                        }
                     }
                     else
                     {
-                        total += index;
+                        total += index * 100;
                     }
                     
-                    horizontalReflection.Clear();
-                    verticalReflection.Clear();
+                    verticalReflect.Clear();
+                    horizontalReflect.Clear();
                 }   
             }
 
@@ -66,44 +69,76 @@
 
         public static bool GetReflection(List<string> reflection, out int reflectionIndex)
         {
+            List<int> indices = new List<int>();
 
-
-            string[][][] reflectionArray = new string[reflection.Count][][]; 
-
-            for (int i = 0; i < reflection.Count; i++)
+            for (int i = 1; i < reflection.Count; i++)
             {
-                reflectionArray[i] = new string[reflection[i].Length- 1][];
+                indices.Add(i);
+            }
 
-                for (int j = 1; j < reflection[i].Length / 2 + 1; j++)
+            for (int i = 1; i < reflection.Count; i++)
+            {
+                List<string> newReflection = new List<string>();
+
+                if (i <=  reflection.Count / 2)
                 {
-                    string tryReflect = reflection[i].Substring(0, j * 2);
-
-                    List<char> secondHalf = tryReflect.Substring(tryReflect.Length / 2).ToList();
-                    secondHalf.Reverse();
-                    string secondHalfString = new string(secondHalf.ToArray());
-
-                    reflectionArray[i][j - 1] = new string[2] {tryReflect.Remove(j), secondHalfString};
+                    for (int j = 0; j < i * 2; j++)
+                    {
+                        newReflection.Add(reflection[j]);
+                    }
+                }
+                else
+                {
+                    for (int j = reflection.Count - (reflection.Count - i) * 2; 
+                        j < reflection.Count; j++)
+                    {
+                        newReflection.Add(reflection[j]);
+                    }
                 }
 
-                for (int j = reflection[i].Length / 2 + 1;
-                    j < reflection[i].Length; j++)
+                if (!CompareReflection(newReflection))
                 {
-                    string tryReflect = reflection[i]
-                        .Substring((int)((j - reflection[i].Length / 2.0) * 2));
-
-                    List<char> secondHalf = tryReflect.Substring(tryReflect.Length / 2).ToList();
-                    secondHalf.Reverse();
-                    string secondHalfString = new string(secondHalf.ToArray());
-                    string test = tryReflect.Remove(tryReflect.Length / 2);
-
-                    reflectionArray[i][j - 1] = new string[2] { test, secondHalfString };
+                    indices.Remove(i);
                 }
             }
 
-            reflectionIndex = -1;
-            return false;
+            if (indices.Count == 1) 
+            {
+                reflectionIndex = indices[0];
+                return true;
+            }
+            else
+            {
+                reflectionIndex = -1;
+                return false;
+            }
+            
         }
 
-        //public static bool CompareReflectionSmudge
+        public static bool CompareReflection(List<string> reflection)
+        {
+            const int AllowedSmudges = 1;
+            int smudges = 0;
+
+            for (int i = 0; i < reflection.Count/2; i++)
+            {
+                for (int j = 0; j < reflection[i].Length; j++)
+                {
+                    if (reflection[i][j] != reflection[^(i + 1)][j])
+                    {
+                        smudges++;
+                    }
+                }
+            }
+
+            if (smudges == AllowedSmudges)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
