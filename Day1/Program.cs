@@ -1,4 +1,7 @@
-﻿namespace Day1
+﻿using System.Text.RegularExpressions;
+using System.Threading;
+
+namespace Day1
 {
     internal class Program
     {
@@ -8,6 +11,34 @@
 
             int total = 0;
 
+            foreach (string line in lines)
+            {
+                //Part 2
+
+                string temp = temp = Regex.Replace(line, @"one|two|three|four|five|six|seven|eight|nine",
+                    x => StringToNumber(x.Value)); 
+
+                for (int i = 0; i < 3; i++) 
+                {
+                    temp = Regex.Replace(temp, @"one|two|three|four|five|six|seven|eight|nine",
+                    x => StringToNumber(x.Value));
+                }
+                
+
+                //Part 1
+
+                string[] numbers = Regex.Matches(temp, @"\d")
+                    .Cast<Match>()
+                    .Select(m => m.Value)
+                    .ToArray();
+                int test = int.Parse(numbers.First() + numbers.Last());
+
+                total += (int.Parse(numbers.First() + numbers.Last()));
+
+                
+            }
+
+            /*
             foreach (string line in lines)
             {
                 string numberString = "";
@@ -47,9 +78,46 @@
                 numberString += tempNumber.ToString();
 
                 total += int.Parse(numberString);
-            }
+            }*/
 
             Console.WriteLine(total);
+        }
+
+        public static string StringToNumber(string s)
+        {
+            switch (s)
+            {
+                case "one":
+                    return "1e";
+                    break;
+                case "two":
+                    return "2o";
+                    break;
+                case "three":
+                    return "3e";
+                    break;
+                case "four":
+                    return "4";
+                    break;
+                case "five":
+                    return "5e";
+                    break;
+                case "six":
+                    return "6";
+                    break;
+                case "seven":
+                    return "7n";
+                    break;
+                case "eight":
+                    return "8t";
+                    break;
+                case "nine":
+                    return "9e";
+                    break;
+                default: 
+                    return null;
+                    break;
+            }
         }
 
         public static bool CheckNumbers(string fullLine, int startIndex, out int tempNumber)

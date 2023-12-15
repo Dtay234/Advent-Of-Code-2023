@@ -1,4 +1,6 @@
-﻿namespace Day13
+﻿using System.Text.RegularExpressions;
+/*
+namespace Day13
 {
     internal class Program
     {
@@ -126,7 +128,7 @@
                                         possibleReflection.Remove(j);
                                     }
                                 }
-
+                                
 
                                 else
                                 {
@@ -144,7 +146,7 @@
                                         possibleReflection.Remove(j);
                                     }
                                 }
-
+                                
                             }
                         }
                         
@@ -177,7 +179,8 @@
             {
                 if ()
             }
-            */
+            *
         }
     }
 }
+*/
