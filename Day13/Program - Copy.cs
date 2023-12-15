@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../text.txt");
+            string[] lines = File.ReadAllLines("../../../test.txt");
             List<string> horizontalReflection = new List<string>();
             List<string> verticalReflection = new List<string>();
             int total = 0;
@@ -66,17 +66,14 @@
 
         public static bool GetReflection(List<string> reflection, out int reflectionIndex)
         {
-            List<int> possibleReflections = new List<int>();
 
-            for (int i = 1; i < reflection[0].Length; i++)
-            {
-                possibleReflections.Add(i);
-            }
 
-            //string[][] reflectionArray = new string[reflection.Count][]; 
+            string[][][] reflectionArray = new string[reflection.Count][][]; 
 
             for (int i = 0; i < reflection.Count; i++)
             {
+                reflectionArray[i] = new string[reflection[i].Length- 1][];
+
                 for (int j = 1; j < reflection[i].Length / 2 + 1; j++)
                 {
                     string tryReflect = reflection[i].Substring(0, j * 2);
@@ -85,10 +82,7 @@
                     secondHalf.Reverse();
                     string secondHalfString = new string(secondHalf.ToArray());
 
-                    if (!tryReflect.StartsWith(secondHalfString))
-                    {
-                        possibleReflections.Remove(j);
-                    }
+                    reflectionArray[i][j - 1] = new string[2] {tryReflect.Remove(j), secondHalfString};
                 }
 
                 for (int j = reflection[i].Length / 2 + 1;
@@ -100,24 +94,16 @@
                     List<char> secondHalf = tryReflect.Substring(tryReflect.Length / 2).ToList();
                     secondHalf.Reverse();
                     string secondHalfString = new string(secondHalf.ToArray());
+                    string test = tryReflect.Remove(tryReflect.Length / 2);
 
-                    if (!tryReflect.StartsWith(secondHalfString))
-                    {
-                        possibleReflections.Remove(j);
-                    }
+                    reflectionArray[i][j - 1] = new string[2] { test, secondHalfString };
                 }
-            }
-
-            if (possibleReflections.Count == 1)
-            {
-                reflectionIndex = possibleReflections[0];
-                return true;
             }
 
             reflectionIndex = -1;
             return false;
         }
 
-        public static bool CompareReflectionSmudge
+        //public static bool CompareReflectionSmudge
     }
 }
