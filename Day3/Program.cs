@@ -7,72 +7,114 @@ namespace Day3
     {
         static void Main(string[] args)
         {
-            string[] lines = File.ReadAllLines("../../../test.txt");
+            string[] lines = File.ReadAllLines("../../../text.txt");
             string symbols = "@#$%&*/+=-";
-            string[] nums = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            string nums = "0123456789";
             //List<int> numbers = new List<int>();
             int total = 0;
-            //List<Gear> gears = new List<Gear>();
-
-            /*
-            char[,] input = new char[lines.Length, lines[0].Length];
-
+            
             for (int i = 0; i < lines.Length; i++)
             {
                 for (int j = 0; j < lines[0].Length; j++)
                 {
-                    input[i, j] = lines[i][j];
-                }
-            }
-            */
 
-            int[][] numbers = new int[lines.Length][];
+                    if (lines[i][j] == '*')
+                    {
+                        int gearRatio = 1;
+                        string top = null;
+                        string middle = null;
+                        string bottom = null;
+                        int adjascentNums = 0;
 
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string[] numStrings = Regex.Split(lines[i], @"\D+").Where(s => !string.IsNullOrEmpty(s)).ToArray(); 
+                        if (i != 0)
+                        {
+                            adjascentNums += Regex.Matches(lines[i - 1].Substring(j - 1, 3), @"\d+").Count();
+                            top = lines[i - 1];
+                        }
 
-                numbers[i] = new int[numStrings.Length];
+                        adjascentNums += Regex.Matches(lines[i].Substring(j - 1, 3), @"\d+").Count();
+                        middle = lines[i];
 
-                
+                        if (i != (lines.Length - 1))
+                        {
+                            adjascentNums += Regex.Matches(lines[i + 1].Substring(j - 1, 3), @"\d+").Count();
+                            bottom = lines[i + 1];
+                        }
 
-                for (int j = 0; j < numStrings.Length; j++)
-                {
+                        if (adjascentNums == 2)
+                        {
+                            List<Number> adjacent = new List<Number>();
+                            int counter = 0;
+                            
+                            if (i != 0)
+                            {
+                                for (int k = 0; k < top.Length; k++)
+                                {
+                                    if (nums.Contains(top[k]))
+                                    {
+                                        string number = Regex.Split(top.Substring(k), @"[\D]+")
+                                            .Where(s => !string.IsNullOrEmpty(s))
+                                            .ToArray()[0];
 
-                    numbers[i][j] = int.Parse(numStrings[j]);
+                                        
+                                        adjacent.Add(new Number(number, i - 1, k));
+                                        k += number.Length - 1;
+                                    }
+                                }
+                            }
+
+                            for (int k = 0; k < middle.Length; k++)
+                            {
+                                if (nums.Contains(middle[k]))
+                                {
+                                    string number = Regex.Split(middle.Substring(k), @"\D+")
+                                        .Where(s => !string.IsNullOrEmpty(s))
+                                        .ToArray()[0];
+
+                                    
+                                    adjacent.Add(new Number(number, i - 1, k));
+                                    k += number.Length - 1;
+                                }
+                            }
+
+                            if (i != (lines.Length - 1))
+                            {
+                                for (int k = 0; k < bottom.Length; k++)
+                                {
+                                    if (nums.Contains(bottom[k]))
+                                    {
+                                        string number = Regex.Split(bottom.Substring(k), @"\D+")
+                                            .Where(s => !string.IsNullOrEmpty(s))
+                                            .ToArray()[0];
+
+                                        
+                                        adjacent.Add(new Number(number, i - 1, k));
+                                        k += number.Length - 1;
+                                    }
+                                }
+                            }
+
+                            
+
+                            foreach (Number number in adjacent)
+                            {
+                                if (number.IsAdjacent(i, j) )
+                                {
+                                    gearRatio *= number.value;
+                                }
+                            }
+
+                            total += gearRatio;
+                        }
+
+
+                        
+                    }
+
                 }
             }
             
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                for (int j = 0; j < lines[0].Length; j++)
-                {
-                    int adjacentNums = 0;
-
-                    
-                }
-            }
-            /*
-            foreach (int i in numbers)
-            {
-                total += i;
-            }
             Console.WriteLine(total);
-
-            int gearTotal = 0;
-
-            foreach (Gear g in gears)
-            {
-                if (g.adjacent == 2)
-                {
-                    gearTotal += g.gearRatio;
-                }
-            }
-            
-
-            Console.WriteLine(gearTotal);
-            */
         }
     }
 }
