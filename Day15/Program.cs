@@ -82,7 +82,7 @@ namespace Day15
 
             Console.WriteLine("\nSum of focusing power of all lenses: " + focusingPower);
 
-            //Wrong: 47823 (low) 1448115 (high) 259098 (high)
+            //Wrong: 47823 (low) 1448115 (high) 259098 (high) 
             //Literally all of my problems came from the fact that I was using 2 as the length of the label everywhere
             //since the sample input only has labels with length 2
         }
